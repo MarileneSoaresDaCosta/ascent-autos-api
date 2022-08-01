@@ -47,6 +47,17 @@ public class AutosControllerTest {
 
 
         // GET: /api/autos returns code 204 (no autos found)
+        @Test
+        void getAutos_noParams_none_returnsNoContent() throws Exception {
+            // Arrange
+            when(autoService.getAutos()).thenReturn(new AutosList());
+            // Act
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/autos"))
+                    .andDo(print())
+                    // Assert
+                    .andExpect(status().isNoContent());
+        }
+
         // GET: /api/autos?color=RED&make=Ford returns 200 - at least one auto
             // json obj with list of matching autos: { "automobiles": [ {}, {} ] }
         // GET: /api/autos?color=BLUE&make=Toyota returns 204 (no autos found)
