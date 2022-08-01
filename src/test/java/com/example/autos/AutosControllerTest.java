@@ -1,8 +1,32 @@
 package com.example.autos;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(AutosController.class)
 public class AutosControllerTest {
+    @Autowired
+    MockMvc mockMvc;
     // GET /api/autos
         // GET: /api/autos returns 200 - list of all autos
+    @Test
+    public void getAutos_noParams_exists_returnsAutosList() throws Exception {
+        // Arrange
+        // Act
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/autos"))
+            // Assert
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.automobiles", hasSize(5)));
+    }
+
+
         // GET: /api/autos returns code 204 (no autos found)
         // GET: /api/autos?color=RED&make=Ford returns 200 - at least one auto
             // json obj with list of matching autos: { "automobiles": [ {}, {} ] }
