@@ -102,8 +102,24 @@ public class AutosControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.automobiles", hasSize(5)));
     }
-    // GET: /api/autos?make=Ford returns 200 - returns Ford cars
 
+    // GET: /api/autos?make=Ford returns 200 - returns Ford cars
+    @Test
+    void getAutos_searchParams_exists_returnsFordCars() throws Exception {
+        // tests only whether getAutos accepts a single param color
+        // Arrange
+        List<Automobile> automobiles = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            automobiles.add(new Automobile(1967+i, "Ford", "Mustang", "AABB"+i));
+        }
+        when(autoService.getAutos("Ford")).thenReturn(new AutosList(automobiles));
+        // Act
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/autos?make=Ford"))
+                .andDo(print())
+                // Assert
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.automobiles", hasSize(5)));
+    }
 
 
     // POST /api/autos - request body with car info
