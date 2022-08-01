@@ -61,19 +61,9 @@ public class AutosControllerTest {
         }
 
         // GET: /api/autos?color=RED&make=Ford returns 200 - at least one auto
-
-        // GET: /api/autos?color=BLUE&make=Toyota returns 204 (no autos found)
-
-        // GET: /api/autos?color=RED returns 200 - returns red cars
-
-        // GET: /api/autos?make=Ford returns 200 - returns Ford cars
-
     @Test
     void getAutos_searchParams_exists_returnsAutosList() throws Exception {
-
-        // just checking if search happens - endpoint accepts 2 params, not what it returns
-
-        //Arrange
+        // OBS: just checking if search happens - endpoint accepts 2 params, not what it returns
         List<Automobile> automobiles = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             automobiles.add(new Automobile(1967+i, "Ford", "Mustang", "AABB"+i));
@@ -85,6 +75,20 @@ public class AutosControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.automobiles", hasSize(5)));
     }
+
+    // GET: /api/autos?color=BLUE&make=Toyota returns 204 (no autos found)
+    @Test
+    void getAutos_searchParams_none_returnsNoContent() throws Exception {
+
+        when(autoService.getAutos(anyString(), anyString())).thenReturn(new AutosList());
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/autos?color=BLUE&make=Toyota"))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+
+    // GET: /api/autos?color=RED returns 200 - returns red cars
+
+    // GET: /api/autos?make=Ford returns 200 - returns Ford cars
 
 
     // POST /api/autos - request body with car info
