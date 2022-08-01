@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -59,10 +61,30 @@ public class AutosControllerTest {
         }
 
         // GET: /api/autos?color=RED&make=Ford returns 200 - at least one auto
-            // json obj with list of matching autos: { "automobiles": [ {}, {} ] }
+
         // GET: /api/autos?color=BLUE&make=Toyota returns 204 (no autos found)
+
         // GET: /api/autos?color=RED returns 200 - returns red cars
+
         // GET: /api/autos?make=Ford returns 200 - returns Ford cars
+
+    @Test
+    void getAutos_searchParams_exists_returnsAutosList() throws Exception {
+
+        // just checking if search happens - endpoint accepts 2 params, not what it returns
+
+        //Arrange
+        List<Automobile> automobiles = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            automobiles.add(new Automobile(1967+i, "Ford", "Mustang", "AABB"+i));
+        }
+        when(autoService.getAutos(anyString(), anyString())).thenReturn(new AutosList(automobiles));
+        // Act
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/autos?color=RED&make=Ford"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.automobiles", hasSize(5)));
+    }
 
 
     // POST /api/autos - request body with car info
