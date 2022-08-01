@@ -3,10 +3,16 @@ package com.example.autos;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -14,13 +20,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AutosControllerTest {
     @Autowired
     MockMvc mockMvc;
+
+    @MockBean
+    AutosService autoService;
+
+
     // GET /api/autos
         // GET: /api/autos returns 200 - list of all autos
     @Test
-    public void getAutos_noParams_exists_returnsAutosList() throws Exception {
+    void getAutos_noParams_exists_returnsAutosList() throws Exception {
         // Arrange
+        List<Automobile> automobiles = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            automobiles.add(new Automobile(1967+i, "Ford", "Mustang", "AABB"+i));
+        }
+
+        when(autoService.getAutos()).thenReturn(new AutosList(automobiles));
+
         // Act
         mockMvc.perform(MockMvcRequestBuilders.get("/api/autos"))
+                .andDo(print())
             // Assert
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.automobiles", hasSize(5)));
