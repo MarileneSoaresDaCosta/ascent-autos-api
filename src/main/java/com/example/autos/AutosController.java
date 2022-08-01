@@ -15,12 +15,16 @@ public class AutosController {
     }
     @GetMapping("/api/autos")
     public ResponseEntity<AutosList>  getAutos(
-            @RequestParam(required=false)String color,
+            @RequestParam(required=false) String color,
             @RequestParam(required=false) String make){
         AutosList autosList;
         if (color == null && make == null) {
             autosList = autosService.getAutos();
-        } else {
+        } else if (color instanceof String && make == null) {
+            autosList = autosService.getAutos(color);
+        }
+
+        else {
             autosList = autosService.getAutos(color, make);
         }
 

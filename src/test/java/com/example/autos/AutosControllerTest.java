@@ -36,7 +36,7 @@ public class AutosControllerTest {
         for (int i = 0; i < 5; i++) {
             automobiles.add(new Automobile(1967+i, "Ford", "Mustang", "AABB"+i));
         }
-
+//        System.out.println(automobiles.toString());
         when(autoService.getAutos()).thenReturn(new AutosList(automobiles));
 
         // Act
@@ -79,7 +79,6 @@ public class AutosControllerTest {
     // GET: /api/autos?color=BLUE&make=Toyota returns 204 (no autos found)
     @Test
     void getAutos_searchParams_none_returnsNoContent() throws Exception {
-
         when(autoService.getAutos(anyString(), anyString())).thenReturn(new AutosList());
         mockMvc.perform(MockMvcRequestBuilders.get("/api/autos?color=BLUE&make=Toyota"))
                 .andDo(print())
@@ -87,8 +86,24 @@ public class AutosControllerTest {
     }
 
     // GET: /api/autos?color=RED returns 200 - returns red cars
-
+    @Test
+    void getAutos_searchParams_exists_returnsRedCars() throws Exception {
+        // tests only whether getAutos accepts a single param color
+        // Arrange
+        List<Automobile> automobiles = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            automobiles.add(new Automobile(1967+i, "Ford", "Mustang", "AABB"+i));
+        }
+        when(autoService.getAutos("RED")).thenReturn(new AutosList(automobiles));
+        // Act
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/autos?color=RED"))
+                .andDo(print())
+        // Assert
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.automobiles", hasSize(5)));
+    }
     // GET: /api/autos?make=Ford returns 200 - returns Ford cars
+
 
 
     // POST /api/autos - request body with car info
