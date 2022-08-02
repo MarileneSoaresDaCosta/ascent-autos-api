@@ -167,7 +167,13 @@ public class AutosControllerTest {
                 .andExpect(jsonPath("vin").value(automobile.getVin()));
     }
         // GET: /api/autos/{vin} - returns 204 - auto not found
-
+    @Test
+    void getAuto_withVin_none_returnsNoContent() throws Exception {
+        when(autoService.getAuto(anyString())).thenReturn(new Automobile());
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/autos/"  + "AABBCC"))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
 
     // PATCH /api/autos/{vin} - request body with color and owner
         // PATCH: /api/autos/{vin} - return 200 - successfully updated
