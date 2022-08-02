@@ -177,6 +177,20 @@ public class AutosControllerTest {
 
     // PATCH /api/autos/{vin} - request body with color and owner
         // PATCH: /api/autos/{vin} - return 200 - successfully updated
+    @Test
+    void updateAuto_withObj_returnsAuto() throws Exception {
+        Automobile automobile = new Automobile(1967, "Ford", "Mustang", "AABBDD");
+        when(autoService.updateAuto(anyString(), anyString(), anyString() ))
+                .thenReturn(automobile);
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/autos/"
+                + automobile.getVin())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"color\":\"RED\",\"owner\":\"Bob\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("color").value("RED"))
+                .andExpect(jsonPath("owner").value("Bob"));
+
+    }
         // PATCH: /api/autos/{vin} - return 204 - auto not found
         // PATCH: /api/autos/{vin} - return 400 - error message - bad request
 
