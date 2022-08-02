@@ -15,4 +15,8 @@ public class AutosService {
     public AutosList getAutos(String colorOrMake) {
         return null;
     }
+
+    public Automobile addAuto(Automobile auto) {
+        return null;
+    }
 }

@@ -1,9 +1,11 @@
 package com.example.autos;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -25,6 +28,8 @@ public class AutosControllerTest {
 
     @MockBean
     AutosService autoService;
+
+    ObjectMapper mapper = new ObjectMapper();
 
 
     // GET /api/autos
@@ -48,19 +53,19 @@ public class AutosControllerTest {
     }
 
 
-        // GET: /api/autos returns code 204 (no autos found)
-        @Test
-        void getAutos_noParams_none_returnsNoContent() throws Exception {
-            // Arrange
-            when(autoService.getAutos()).thenReturn(new AutosList());
-            // Act
-            mockMvc.perform(MockMvcRequestBuilders.get("/api/autos"))
-                    .andDo(print())
-                    // Assert
-                    .andExpect(status().isNoContent());
-        }
+    // GET: /api/autos returns code 204 (no autos found)
+    @Test
+    void getAutos_noParams_none_returnsNoContent() throws Exception {
+        // Arrange
+        when(autoService.getAutos()).thenReturn(new AutosList());
+        // Act
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/autos"))
+                .andDo(print())
+                // Assert
+                .andExpect(status().isNoContent());
+    }
 
-        // GET: /api/autos?color=RED&make=Ford returns 200 - at least one auto
+    // GET: /api/autos?color=RED&make=Ford returns 200 - at least one auto
     @Test
     void getAutos_searchParams_exists_returnsAutosList() throws Exception {
         // OBS: just checking if search happens - endpoint accepts 2 params, not what it returns
@@ -123,8 +128,31 @@ public class AutosControllerTest {
 
 
     // POST /api/autos - request body with car info
-        // POST: /api/autos - returns 200 - auto added successfully to DB
+        // POST: /api/autos - returns 200 - auto added successfully
+    @Test
+    void addAuto_valid_returnsAuto() throws Exception {
+        Automobile automobile = new Automobile(1967, "Ford", "Mustang", "AABBDD");
+//        String json = "{\"year\":1967,\"make\":\"Ford\",\"model\":\"Mustang\",\"color\":null,\"owner\":null,\"vin\":\"AABBDD\"}";
+        when(autoService.addAuto(any(Automobile.class))).thenReturn(automobile);
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/autos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(automobile)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("make").value("Ford"));
+    }
+
         // POST: /api/autos - returns 400 - error message - bad request
+    @Test
+    void addAuto_badRequest_returns400() throws Exception {
+        when(autoService.addAuto(any(Automobile.class))).thenThrow(InvalidAutoException.class);
+        String json = "{\"year\":1967,\"make\":\"Ford\",\"model\":\"Mustang\",\"color\":null,\"owner\":null,\"vin\":\"AABBDD\"}";
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/autos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 
 
     // GET /api/autos/{vin}
