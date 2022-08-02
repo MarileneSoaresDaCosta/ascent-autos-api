@@ -15,8 +15,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -217,5 +216,15 @@ public class AutosControllerTest {
 
     // DELETE /api/autos/{vin}
         // DELETE: /api/autos/{vin} - returns 202 - auto delete request accepted
+    @Test
+    void deleteAuto_withVin_exists_returns202() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/autos/AABBCC"))
+                .andDo(print())
+                .andExpect(status().isAccepted());
+        // delete is a void method, so we can simply check if the method was called
+        // if method is not called, error would say: 'wanted but not invoked'
+        verify(autoService).deleteAuto(anyString());
+
+    }
         // DELETE: /api/autos/{vin} - returns 204 - auto not found
 }
