@@ -192,6 +192,17 @@ public class AutosControllerTest {
 
     }
         // PATCH: /api/autos/{vin} - return 204 - auto not found
+    @Test
+    void updateAuto_withObj_returnsNoContent() throws Exception {
+        when(autoService.updateAuto(anyString(), anyString(), anyString() ))
+                .thenReturn(new Automobile());
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/autos/"
+                                +"AABBCC")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"color\":\"RED\",\"owner\":\"Bob\"}"))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
         // PATCH: /api/autos/{vin} - return 400 - error message - bad request
 
 
