@@ -155,8 +155,17 @@ public class AutosControllerTest {
     }
 
 
-    // GET /api/autos/{vin}
+    // GET /api/autos/{vin} >> here vin is not a parameter, but part of the path!
         // GET: /api/autos/{vin} - returns 200 - auto found
+    @Test
+    void getAuto_withVin_returnsAuto() throws Exception {
+        Automobile automobile = new Automobile(1967, "Ford", "Mustang", "AABBDD");
+        when(autoService.getAuto(anyString())).thenReturn(automobile);
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/autos/" + automobile.getVin()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("vin").value(automobile.getVin()));
+    }
         // GET: /api/autos/{vin} - returns 204 - auto not found
 
 
