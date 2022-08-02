@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -46,6 +47,7 @@ class AutosServiceTest {
         assertThat(autoList.isEmpty()).isFalse();
     }
 
+    // test for getAutos with a single param
     @Test
     void testGetAutos1() {
     }
@@ -61,8 +63,15 @@ class AutosServiceTest {
         assertThat(auto.getMake()).isEqualTo("Ford");
     }
 
+    // get auto with vin
     @Test
-    void getAuto() {
+    void getAuto_withVin_returnsAuto() {
+        Automobile automobile =  new Automobile(1967, "Ford", "Mustang", "AABBDD");
+        automobile.setColor("RED");
+        when(autosRepository.findByVin(anyString())).thenReturn(Optional.of(automobile));
+        Automobile auto = autosService.getAuto("MYVINY");
+        assertThat(auto).isNotNull();
+        assertThat(auto.getVin()).isEqualTo(automobile.getVin());
     }
 
     @Test
