@@ -196,15 +196,24 @@ public class AutosControllerTest {
     void updateAuto_withObj_returnsNoContent() throws Exception {
         when(autoService.updateAuto(anyString(), anyString(), anyString() ))
                 .thenReturn(new Automobile());
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/autos/"
-                                +"AABBCC")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/autos/" +"AABBCC")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"color\":\"RED\",\"owner\":\"Bob\"}"))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
         // PATCH: /api/autos/{vin} - return 400 - error message - bad request
+    @Test
+    void updateAuto_withObj_returnsBadRequest400() throws Exception {
+        when(autoService.updateAuto(anyString(), anyString(), anyString() ))
+                .thenThrow(InvalidAutoException.class);
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/autos/" + "ABCDEFG")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"color\":\"RED\",\"owner\":\"Bob\"}"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
 
+    }
 
     // DELETE /api/autos/{vin}
         // DELETE: /api/autos/{vin} - returns 202 - auto delete request accepted
