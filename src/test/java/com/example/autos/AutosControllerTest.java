@@ -227,4 +227,12 @@ public class AutosControllerTest {
 
     }
         // DELETE: /api/autos/{vin} - returns 204 - auto not found
+    @Test
+    void deleteAuto_withVin_notExist_returnNoContent() throws Exception {
+        doThrow(new AutoNotFoundException()).when(autoService).deleteAuto(anyString());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/autos/AABBCC"))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+
 }
