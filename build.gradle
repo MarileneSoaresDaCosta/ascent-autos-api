@@ -17,7 +17,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testRuntimeOnly 'com.h2database:h2'
 	// https://mvnrepository.com/artifact/mysql/mysql-connector-java
-	implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.30'
+	//	implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.30'
+	runtimeOnly 'mysql:mysql-connector-java'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	// https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
 	implementation 'org.apache.httpcomponents:httpclient:4.5.13'
