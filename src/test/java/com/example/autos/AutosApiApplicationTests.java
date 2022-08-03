@@ -109,4 +109,7 @@ class AutosApiApplicationTests {
         assertThat(response.getBody().getVin()).isEqualTo(automobile.getVin());
     }
 
+    // patch
+
+    // delete?
 }
