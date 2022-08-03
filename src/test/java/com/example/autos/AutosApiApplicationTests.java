@@ -1,5 +1,7 @@
 package com.example.autos;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +23,7 @@ class AutosApiApplicationTests {
 
     @Autowired
     TestRestTemplate restTemplate;
+    private RestTemplate patchRestTemplate;
 
     @Autowired
     AutosRepository autosRepository;
@@ -47,6 +52,13 @@ class AutosApiApplicationTests {
             this.testAutos.add(auto);
         }
         autosRepository.saveAll(this.testAutos);
+
+        // setup for PATCH
+        // Add Apache HttpClient as TestRestTemplate
+        this.patchRestTemplate = restTemplate.getRestTemplate();
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        this.patchRestTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
+
     }
 
     @AfterEach
@@ -110,6 +122,47 @@ class AutosApiApplicationTests {
     }
 
     // patch
+    /*
+    @Test
+    void updateAuto_ColorAndOwner_returnsAuto(){
+        // Arrange: create new auto and POST
+        Automobile automobile = new Automobile();
+        automobile.setVin("XYZ123XX");
+        automobile.setYear(2004);
+        automobile.setMake("Lexus");
+        automobile.setModel("RX330");
+        automobile.setColor("GREY");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+        HttpEntity<Automobile> request = new HttpEntity<>(automobile, headers);
+        ResponseEntity<Automobile> response = restTemplate.postForEntity("/api/autos", request, Automobile.class);
+
+        // create json obj
+        String json = "{\"color\":\"SILVER\",\"owner\":\"Bob\"}";
+        HttpHeaders headersPatch = new HttpHeaders();
+        HttpEntity<String> entity = new HttpEntity<>(json, headers);
+        headersPatch.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+
+        // Use patchRestTemplate to make call with PATCH method
+        ResponseEntity<Automobile> responseUpdated = patchRestTemplate.exchange("/api/autos", HttpMethod.PATCH, entity);
+
+        // Ensure Status Code is 200 OK
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+        // Ensure Content-Type is application/json
+        assertEquals(MediaType.APPLICATION_JSON_UTF8, responseEntity.getHeaders().getContentType());
+
+        // Ensure that PATCH updated color and owner
+        // from "NotRyan" to "Ryan"
+        Automobile autoUpdated = responseEntity.getBody();
+        assertEquals("SILVER", autoUpdated.getColor());
+        assertEquals("Bob", autoUpdated.getOwner());
+
+    }
+
 
     // delete?
+
+     */
 }
