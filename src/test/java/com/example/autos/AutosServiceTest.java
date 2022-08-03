@@ -50,9 +50,9 @@ class AutosServiceTest {
     }
 
     // test for getAutos with a single param
-    @Test
-    void testGetAutos1() {
-    }
+//    @Test
+//    void testGetAutos1() {
+//    }
 
     @Test
     void addAuto_valid_returnsAuto() {
