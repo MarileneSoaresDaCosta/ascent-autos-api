@@ -53,6 +53,7 @@ class AutosApiApplicationTests {
     void tearDown() {
         autosRepository.deleteAll();
     }
+    // the test below was commented out until integration tests were added here
 	@Test
 	void contextLoads() {
 	}
