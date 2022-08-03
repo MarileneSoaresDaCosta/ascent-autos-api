@@ -2,15 +2,18 @@ package com.example.autos;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -18,7 +21,9 @@ import java.util.List;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource("classpath:application-test.properties")
 class AutosApiApplicationTests {
@@ -123,48 +128,30 @@ class AutosApiApplicationTests {
         assertThat(response.getBody().getVin()).isEqualTo(automobile.getVin());
     }
 
-    // patch
-    /*
+    // PATCH: /api/autos/{vin}
     @Test
-    void updateAuto_ColorAndOwner_returnsAuto(){
-        // Arrange: create new auto and POST
-        Automobile automobile = new Automobile();
-        automobile.setVin("XYZ123XX");
-        automobile.setYear(2004);
-        automobile.setMake("Lexus");
-        automobile.setModel("RX330");
-        automobile.setColor("GREY");
+    void updateAuto_ColorAndOwner_returnsAuto() throws Throwable{
+        UpdateOwnerRequest updateOwnerRequest = new UpdateOwnerRequest("PINK", "Kitty");
+        int seq = r.nextInt(50);
+        String vin = testAutos.get(seq).getVin();
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
-        HttpEntity<Automobile> request = new HttpEntity<>(automobile, headers);
-        ResponseEntity<Automobile> response = restTemplate.postForEntity("/api/autos", request, Automobile.class);
+        HttpEntity<UpdateOwnerRequest> request = new HttpEntity<>(updateOwnerRequest, headers);
 
-        // create json obj
-        String json = "{\"color\":\"SILVER\",\"owner\":\"Bob\"}";
-        HttpHeaders headersPatch = new HttpHeaders();
-        HttpEntity<String> entity = new HttpEntity<>(json, headers);
-        headersPatch.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
-
+        // Act
         // Use patchRestTemplate to make call with PATCH method
-        ResponseEntity<Automobile> responseUpdated = patchRestTemplate.exchange("/api/autos", HttpMethod.PATCH, entity);
+        ResponseEntity<Automobile> response = restTemplate.exchange(String.format("/api/autos/%s", vin), HttpMethod.PATCH, request, Automobile.class);
 
-        // Ensure Status Code is 200 OK
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-
-        // Ensure Content-Type is application/json
-        assertEquals(MediaType.APPLICATION_JSON_UTF8, responseEntity.getHeaders().getContentType());
-
-        // Ensure that PATCH updated color and owner
-        // from "NotRyan" to "Ryan"
-        Automobile autoUpdated = responseEntity.getBody();
-        assertEquals("SILVER", autoUpdated.getColor());
-        assertEquals("Bob", autoUpdated.getOwner());
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertThat(response.getBody().getColor()).isEqualTo("PINK");
+        assertThat(response.getBody().getOwner()).isEqualTo("Kitty");
+        System.out.println(response.getBody());
 
     }
 
 
     // delete?
-
-     */
 }
