@@ -16,6 +16,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'junit:junit:4.13.1'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	// Include ALL of the Kubernetes for Spring cloud.
+	implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes-fabric8-all'
+
 //    testRuntimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.h2database:h2'
 	// https://mvnrepository.com/artifact/mysql/mysql-connector-java
