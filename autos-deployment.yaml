@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autos-deployment
+  labels:
+    app: autos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: autos
+  template:
+    metadata:
+      labels:
+        app: autos
+    spec:
+      containers:
+        - name: autos
+          image: nginx
+          ports:
+            - containerPort: 80
