@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: autos-deployment
+  name: autos
   labels:
     app: autos
 spec:
@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: autos
-          image: nginx
+          image: lene626/autos
           ports:
-            - containerPort: 80
+            - containerPort: 8080
