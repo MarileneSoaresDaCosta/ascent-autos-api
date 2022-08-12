@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mdacosta-simple-autos-deploy-token
+type: docker-registry
+data:
+  docker-username: Z2l0bGFiK2RlcGxveS10b2tlbi0xMjYyNzIx
+  docker-password: c0hwY250UHlNOE5zcWZ3Q3JTdW0=
+  docker-email: bGVuZTYyNkBnbWFpbC5jb20=
+  docker-server: cmVnaXN0cnkuZ2l0bGFiLmNvbQ==

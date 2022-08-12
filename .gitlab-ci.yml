@@ -1,32 +1,91 @@
-image: openjdk:11
-
 stages:
   - build
   - test
-#  - deploy
+  - coverage
+  - docker
+  - deploy
 
-build:
+build-my-project:
+  image: openjdk:11
   stage: build
   script:
-    - ./gradlew assemble
+    - ./gradlew bootJar
+  cache:
+    key: GRADLE-BUILD-FILES
+    paths:
+      - build/
   artifacts:
     paths:
+      - build/classes/java/
       - build/libs/*.jar
+    expire_in: 30 days
+
 test:
+  image: openjdk:11
+  needs:
+    - build-my-project
   stage: test
   script:
     ./gradlew test
   artifacts:
     paths:
-      - build/test-results/test/TEST*.xml
-#production:
-#  stage: deploy
-#  image: ruby:latest
-#  script:
-#    - apt-get update -qy
-#    - apt-get install -y ruby-dev
-#    - gem install dpl
-#    #                        App name from prev step  Key from your heroku account
-#    - dpl --provider=heroku --app=simple-autos-data-lene --api-key=cf4a3cfe-b0aa-458c-8473-6d82ff9f3334
-#  only: # Heroku will ONLY deploy from main or master branch!
-#    - master
+      - build/classes/java/
+      - build/test-results/test/*.xml
+
+codeCoverage:
+  image: openjdk:11
+  needs:
+    - build-my-project
+    - test
+  stage: coverage
+  script:
+    - ./gradlew jacocoTestReport
+    - ./gradlew jacocoTestCoverageVerification
+  allow_failure: true
+  artifacts:
+    when: always
+    paths:
+      - build/reports/jacoco/
+
+docker:
+#  Docker image to use to build the docker image
+  image: docker:20
+  needs:
+    - build-my-project
+    - test
+  stage: docker
+  services:
+    # Docker-In-Docker service is required. Notice there's no space before dind
+    - docker:dind
+  before_script:
+    - echo "$MY_NAME"
+    # This step logs the pipeline into the registry
+    - echo $CI_BUILD_TOKEN | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    # These variables come from Gitlab pipeline service
+    # --pull verifies that the image tag is not in use
+    - docker build --pull -t "$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID" .
+    - docker push "$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID"
+    # Docker image with the :latest tag (copy of the previous image)
+    - docker tag "$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE":"latest"
+    - docker push "$CI_REGISTRY_IMAGE":"latest"
+
+aws-deploy:
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: always
+  image: registry.gitlab.com/galv-vmw-july-2022/capstone/base-aws-eks-image:latest
+  needs:
+    - docker
+  before_script:
+    - export IMAGE="$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID"
+    - aws configure set aws_access_key_id "$MY_ACCESS_KEY_ID"
+    - aws configure set aws_secret_access_key "$MY_SECRET_ACCESS_KEY"
+    - aws configure set region us-west-2
+    - aws configure set output json
+    - aws sts get-caller-identity
+    - aws eks update-kubeconfig --name "$CLUSTER_NAME"
+  script:
+    - envsubst < autos-deploy.yaml  | kubectl apply -f -
+    - kubectl apply -f autos-service.yaml
