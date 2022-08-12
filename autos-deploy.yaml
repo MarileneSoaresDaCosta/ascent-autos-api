@@ -12,6 +12,8 @@ spec:
       labels:
         app: mdacosta-simple-autos
     spec:
+      imagePullSecrets: # Be sure the token name matches what you created on K8s
+        - name: mdacosta-simple-autos-deploy-token
       containers:
         # Be sure to get this exact from your repository
 #        - image: registry.gitlab.com/galv-vmw-july-2022/exercises/marilene-costa/autos-api
@@ -50,5 +52,3 @@ spec:
             #   value: my_user
             # - name: DB_PWD
             #   value: my_user_pwd
-      imagePullSecrets: # Be sure the token name matches what you created on K8s
-        - name: mdacosta-simple-autos-deploy-token
