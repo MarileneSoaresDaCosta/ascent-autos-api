@@ -21,7 +21,7 @@ spec:
           name: mdacosta-simple-autos
           imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - containerPort: 80
           env:
             - name: DB_HOST
               valueFrom:
