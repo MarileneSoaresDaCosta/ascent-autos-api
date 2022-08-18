@@ -43,6 +43,11 @@ spec:
                 secretKeyRef:
                   name: mdacosta-db-secret
                   key: DB_PWD
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-key-secret
+                  key: JWT_SECRET_KEY
             # You can also specify environment variables inline
             # - name: DB_HOST
             #   value: 52.26.72.203
@@ -52,3 +57,4 @@ spec:
             #   value: my_user
             # - name: DB_PWD
             #   value: my_user_pwd
+
