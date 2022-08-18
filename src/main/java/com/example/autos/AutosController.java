@@ -2,7 +2,11 @@ package com.example.autos;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+
 
 @RestController
 public class AutosController {
@@ -31,6 +35,8 @@ public class AutosController {
                 ResponseEntity.ok(autosList);
     }
 
+    // only user with role ADMIN is authorized to reach this end point - still need token
+//    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/api/autos")
     public Automobile addauto(@RequestBody Automobile auto){
         return autosService.addAuto(auto);
