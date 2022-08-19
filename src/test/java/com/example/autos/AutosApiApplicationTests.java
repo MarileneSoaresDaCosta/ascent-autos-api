@@ -1,5 +1,7 @@
 package com.example.autos;
 
+import com.example.autos.security.JwtProperties;
+import com.example.autos.security.TokenHelper;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONObject;
@@ -9,14 +11,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -28,12 +34,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestPropertySource("classpath:application-test.properties")
 class AutosApiApplicationTests {
 
+
     @Autowired
     TestRestTemplate restTemplate;
     private RestTemplate patchRestTemplate;
 
     @Autowired
     AutosRepository autosRepository;
+
+    @Autowired
+    JwtProperties jwtProperties;
+
+    TokenHelper tokenHelper;
 
     Random r = new Random();
     List<Automobile> testAutos;
@@ -72,14 +84,19 @@ class AutosApiApplicationTests {
     void tearDown() {
         autosRepository.deleteAll();
     }
+
     // the test below was commented out until integration tests were added here
 	@Test
 	void contextLoads() {
 	}
 
+
     @Test
-    void getAutos_exits_returnsAutosList(){
-        ResponseEntity<AutosList> response= restTemplate.getForEntity("/api/autos", AutosList.class);
+    void getAutos_exists_returnsAutosList(){
+//        ResponseEntity<AutosList> response= restTemplate.getForEntity("/api/autos", AutosList.class);
+        ResponseEntity<AutosList> response =
+                restTemplate.exchange("/api/autos", HttpMethod.GET, getPostRequestHeaders(), AutosList.class);
+
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().isEmpty()).isFalse();
@@ -88,6 +105,23 @@ class AutosApiApplicationTests {
             System.out.println(auto);
         }
     }
+
+    public HttpEntity<String> getPostRequestHeaders() {
+        List acceptTypes = new ArrayList();
+        acceptTypes.add(MediaType.APPLICATION_JSON);
+
+        HttpHeaders reqHeaders = new HttpHeaders();
+        reqHeaders.setContentType(MediaType.APPLICATION_JSON);
+        reqHeaders.setAccept(acceptTypes);
+//        reqHeaders.add("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyQGdsYWIuY29tIiwiZmlyc3RfbmFtZSI6IkdlbmVyYWwiLCJsYXN0X25hbWUiOiJVc2VyIiwiZW1haWwiOiJ1c2VyQGdsYWIuY29tIiwiZ3VpZCI6MiwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0VSIl0sImlhdCI6MTY2MDgzNjkzNiwiZXhwIjoxNjYwODgwMTM2fQ.DT5x8vIpKwFnefVu5suolw4uBYNVWqu0ocqjZtZ-XseYDEa39ZVE6Flc8ycgeRRlOxiahjy4ZytHccHQ9r5Ozg");
+        reqHeaders.add("Authorization", tokenHelper.getToken("me",
+                Arrays.asList(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority("USER"))));
+
+        return new HttpEntity(reqHeaders);
+    }
+
+
+
 
     @Test
     void getAutos_search_returnsAutosList(){
