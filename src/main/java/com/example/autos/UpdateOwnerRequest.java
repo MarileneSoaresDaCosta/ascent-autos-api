@@ -4,6 +4,9 @@ public class UpdateOwnerRequest {
     private String color;
     private String owner;
 
+    public UpdateOwnerRequest() {
+    }
+
     public UpdateOwnerRequest(String color, String owner) {
         this.color = color;
         this.owner = owner;

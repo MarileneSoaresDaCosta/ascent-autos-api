@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(AutosController.class)
 public class AutosControllerTest {
 
-    @MockBean
+    @Autowired
     JwtProperties jwtProperties;
 
     @Autowired

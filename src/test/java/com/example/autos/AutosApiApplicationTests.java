@@ -52,6 +52,7 @@ class AutosApiApplicationTests {
 
     @BeforeEach
     void setUp(){
+        this.tokenHelper = new TokenHelper(jwtProperties);
         this.testAutos = new ArrayList<>();
         Automobile auto;
         String[] colors = {"RED", "BLUE", "GREEN", "ORANGE", "YELLOW", "BLACK", "BROWN",
@@ -95,7 +96,7 @@ class AutosApiApplicationTests {
     void getAutos_exists_returnsAutosList(){
 //        ResponseEntity<AutosList> response= restTemplate.getForEntity("/api/autos", AutosList.class);
         ResponseEntity<AutosList> response =
-                restTemplate.exchange("/api/autos", HttpMethod.GET, getPostRequestHeaders(), AutosList.class);
+                restTemplate.exchange("/api/autos", HttpMethod.GET, getRequestHeaders(), AutosList.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -106,20 +107,44 @@ class AutosApiApplicationTests {
         }
     }
 
-    public HttpEntity<String> getPostRequestHeaders() {
+    public HttpEntity<String> getRequestHeaders() {
         List acceptTypes = new ArrayList();
         acceptTypes.add(MediaType.APPLICATION_JSON);
 
         HttpHeaders reqHeaders = new HttpHeaders();
         reqHeaders.setContentType(MediaType.APPLICATION_JSON);
         reqHeaders.setAccept(acceptTypes);
-//        reqHeaders.add("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyQGdsYWIuY29tIiwiZmlyc3RfbmFtZSI6IkdlbmVyYWwiLCJsYXN0X25hbWUiOiJVc2VyIiwiZW1haWwiOiJ1c2VyQGdsYWIuY29tIiwiZ3VpZCI6MiwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0VSIl0sImlhdCI6MTY2MDgzNjkzNiwiZXhwIjoxNjYwODgwMTM2fQ.DT5x8vIpKwFnefVu5suolw4uBYNVWqu0ocqjZtZ-XseYDEa39ZVE6Flc8ycgeRRlOxiahjy4ZytHccHQ9r5Ozg");
         reqHeaders.add("Authorization", tokenHelper.getToken("me",
                 Arrays.asList(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority("USER"))));
 
         return new HttpEntity(reqHeaders);
     }
 
+    public HttpEntity<Automobile> getPostRequestHeaders(Automobile auto) {
+        List acceptTypes = new ArrayList();
+        acceptTypes.add(MediaType.APPLICATION_JSON);
+
+        HttpHeaders reqHeaders = new HttpHeaders();
+        reqHeaders.setContentType(MediaType.APPLICATION_JSON);
+        reqHeaders.setAccept(acceptTypes);
+        reqHeaders.add("Authorization", tokenHelper.getToken("me",
+                Arrays.asList(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority("USER"))));
+
+        return new HttpEntity(auto, reqHeaders);
+    }
+
+    public HttpEntity<UpdateOwnerRequest> getPatchRequestHeaders(UpdateOwnerRequest updateOwnerRequest) {
+        List acceptTypes = new ArrayList();
+        acceptTypes.add(MediaType.APPLICATION_JSON);
+
+        HttpHeaders reqHeaders = new HttpHeaders();
+        reqHeaders.setContentType(MediaType.APPLICATION_JSON);
+        reqHeaders.setAccept(acceptTypes);
+        reqHeaders.add("Authorization", tokenHelper.getToken("me",
+                Arrays.asList(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority("USER"))));
+
+        return new HttpEntity(updateOwnerRequest, reqHeaders);
+    }
 
 
 
@@ -129,8 +154,14 @@ class AutosApiApplicationTests {
         String color = testAutos.get(seq).getColor();
         String make = testAutos.get(seq).getMake();
 
-        ResponseEntity<AutosList> response= restTemplate.getForEntity(
-                String.format("/api/autos?color=%s&make=%s", color, make), AutosList.class);
+//        ResponseEntity<AutosList> response= restTemplate.getForEntity(
+//                String.format("/api/autos?color=%s&make=%s", color, make), AutosList.class);
+        ResponseEntity<AutosList> response =
+                restTemplate.exchange(
+                        String.format("/api/autos?color=%s&make=%s", color, make),
+                        HttpMethod.GET, getRequestHeaders(), AutosList.class);
+
+
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().isEmpty()).isFalse();
@@ -150,10 +181,10 @@ class AutosApiApplicationTests {
         automobile.setModel("Windstar");
         automobile.setColor("Blue");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
-        HttpEntity<Automobile> request = new HttpEntity<>(automobile, headers);
-
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+//        HttpEntity<Automobile> request = new HttpEntity<>(automobile, headers);
+        HttpEntity<Automobile> request = getPostRequestHeaders(automobile);
         // Act
         ResponseEntity<Automobile> response = restTemplate.postForEntity("/api/autos", request, Automobile.class);
 
@@ -170,9 +201,9 @@ class AutosApiApplicationTests {
         String vin = testAutos.get(seq).getVin();
 
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
-        HttpEntity<UpdateOwnerRequest> request = new HttpEntity<>(updateOwnerRequest, headers);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+        HttpEntity<UpdateOwnerRequest> request = getPatchRequestHeaders(updateOwnerRequest);
 
         // Act
         // Use patchRestTemplate to make call with PATCH method
